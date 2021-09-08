@@ -27,6 +27,16 @@ router.post("/save", (req, res) => {
 
 });
 
+router.delete("/delete/:id", (req, res) => {
+  const { id } = req.params;
+  //const item = await BlogPost.findById(id);
+  BlogPost.findByIdAndDelete(id, function (err) {
+    if (err) console.log(err);
+    console.log("Successful deletion",id);
+    res.send("Successful deletion: " + id);
+  });
+});
+
 router.get("/api/witcher", (req, res) => {
   const data = {
     name: "Hello witcher!",

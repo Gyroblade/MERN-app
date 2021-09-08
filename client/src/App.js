@@ -3,78 +3,102 @@ import axios from 'axios';
 
 import './App.css'
 
+class Delete extends React.Component {
+  delete = (e) => {
+    e.preventDefault();
+
+    axios({
+      url: `/delete/${this.props.postId}`,
+      method: "DELETE"
+    })
+      .then(() => {
+        this.props.getBlogPost();
+      })
+      .catch(() => console.log("Internal server error"));
+  };
+
+  render() {
+    return (
+      <button class="btn" id="del" onClick={this.delete}><i class="fa fa-trash"></i></button>
+    );
+  }
+}
+
 class App extends React.Component {
-  state ={
-    title: '',
-    body: '',
-    posts:[]
-  }
+  state = {
+    title: "",
+    body: "",
+    posts: [],
+  };
 
-  componentDidMount = ()=>{
-    this.getBlogPost()
-  }
+  componentDidMount = () => {
+    this.getBlogPost();
+  };
 
-  getBlogPost = ()=>{
+  getBlogPost = () => {
+    // get all data from DB
     axios
       .get("/api")
       .then((res) => {
-        this.setState({posts: res.data})
-        //console.log("data received", res.data);
+        this.setState({ posts: res.data });
       })
       .catch(() => {
         console.log("error receiving data");
       });
-  }
+  };
 
-  handleChange = ({target})=>{
-    const {name, value} = target
-    //console.log("event: ", event);
-    //console.log("this: ", this);
-    this.setState({[name]: value})
+  handleChange = ({ target }) => {
+    const { name, value } = target;
+    this.setState({ [name]: value });
+  };
 
-  }
-
-  submit = (e) =>{
+  submit = (e) => {
     e.preventDefault();
 
     const payload = {
       title: this.state.title,
-      body: this.state.body
+      body: this.state.body,
     };
 
     axios({
-      url:"/save",
-      method: 'POST',
-      data: payload
+      url: "/save",
+      method: "POST",
+      data: payload,
     })
-    .then(()=>{
-      console.log("Data sent")
-      this.resetUserInput();
-      this.getBlogPost();
-  })
-    .catch(()=>console.log("Internal sevrver error"))
-  }
+      .then(() => {
+        console.log("Data sent");
+        this.resetUserInput();
+        this.getBlogPost();
+      })
+      .catch(() => console.log("Internal server error"));
+  };
 
-  resetUserInput =()=>{
-    this.setState({ title: '', body: '' });
-  }
+  resetUserInput = () => {
+    this.setState({ title: "", body: "" });
+  };
 
-  displayBlogPosts = (posts)=>{
-    if (!posts.length) return null
+  displayBlogPosts = (posts) => {
+    if (!posts.length) return null;
     //return JSON.stringify(posts);
     //console.log(posts);
-    return posts.map((it,index) => {
+    return posts.map((it, index) => {
       //console.log(it.title);
       return (
         <div key={index}>
-          <h3>{it.title}</h3>
+          <div className="title">
+            {it.title}
+              <Delete
+                postId={it._id}
+                getBlogPost={this.getBlogPost}
+              />
+          </div>
           <p>{it.body}</p>
         </div>
       );
-    })
-  }
+    });
+  };
 
-  render(){
+  render() {
     //console.log("body: ",this.state)
     return (
       <div className="app">
@@ -101,9 +125,7 @@ class App extends React.Component {
           </div>
           <button>Submit</button>
           <div className="blog-post__display">
-            {
-              this.displayBlogPosts(this.state.posts)
-            }
+            {this.displayBlogPosts(this.state.posts)}
           </div>
         </form>
       </div>
